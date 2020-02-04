@@ -1,0 +1,71 @@
+﻿<Application x:Class="SvenCharactor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SvenCharactor"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <Style x:Key="MyButton" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" BorderThickness="0" BorderBrush="Black" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CloseButton" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" BorderThickness="0" BorderBrush="Black" Background="Pink">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Red" />
+                                <Setter Property="Opacity" Value="0.8" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="hyberlinkEffect" TargetType="{x:Type Hyperlink}">
+            <Setter Property="Foreground" Value="#3d6490"></Setter>
+            <Setter Property="TextBlock.TextDecorations" Value="{x:Null}"></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Green"></Setter>
+                    <Setter Property="TextBlock.TextDecorations">
+                        <Setter.Value>
+                            <TextDecorationCollection>
+                                <TextDecoration Location="Underline"/>
+                            </TextDecorationCollection>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <LinearGradientBrush x:Key="ClosedBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#FF000000" Offset="0"/>
+            <GradientStop Color="#FF000000" Offset="1"/>
+            <GradientStop Color="#FF000000" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="OpenBrush"  StartPoint="0.5,1" EndPoint="0.5,0">
+            <GradientStop Color="#00000000" Offset="0"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+        </LinearGradientBrush>
+    </Application.Resources>
+</Application>

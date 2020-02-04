@@ -1,0 +1,107 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Properties="clr-namespace:SvenCharactor.Properties"
+        xmlns:local="clr-namespace:SvenCharactor"
+        xmlns:svgc="http://sharpvectors.codeplex.com/svgc/" xmlns:svg="http://sharpvectors.codeplex.com/runtime/" x:Class="SvenCharactor.MainWindow"
+        mc:Ignorable="d"
+        Title="Sven Charactor" Height="352.6" Width="602" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" Initialized="Window_Initialized" AllowDrop="True" Background="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}">
+    <Grid Name="ClientPanel" Margin="0,0,-6.4,0">
+        <WrapPanel HorizontalAlignment="Left" Height="34.11" VerticalAlignment="Top" Width="592" MouseMove="Title_MouseMove" Background="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}"/>
+        <Grid Name="TopToolbar" HorizontalAlignment="Right" Height="34.11" VerticalAlignment="Center" Width="85.066" Margin="0,0,16.6,318.49">
+            <Button Style="{StaticResource MyButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="30.801" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Height="29.11" Click="MiniWindow_Click" Margin="0,0,50.932,0">
+                <svgc:SvgViewbox Height="18.467" Width="18.201" Source="pack://application:,,,/resource/miniral.svg" Stretch="Fill"/>
+            </Button>
+            <Button Style="{StaticResource CloseButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="30.801" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Height="29.11" Click="CloseWindow_Click">
+                <svgc:SvgViewbox Height="18.467" Width="18.201" Source="pack://application:,,,/resource/close.svg" Stretch="Fill"/>
+            </Button>
+        </Grid>
+        <Grid Name="RunGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507">
+            <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
+            <Label Content="人物模型安装" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Grid HorizontalAlignment="Left" Height="29.11" Margin="355.288,10,0,0" VerticalAlignment="Top" Width="141.712">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Name="RunButton" Click="RunButton_Click" ToolTip="开始解压" Style="{StaticResource MyButton}" HorizontalAlignment="Left" VerticalAlignment="Center" Width="26.7" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Height="26.7" Margin="40.835,0,0,2.41">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/start.svg" Stretch="Fill"/>
+                </Button>
+                <Button Name="DeleteButton" Click="DeleteButton_Click" ToolTip="删除所选路径" Style="{StaticResource MyButton}" HorizontalAlignment="Center" Width="26.7" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Margin="72.535,0,39.698,2.41" VerticalAlignment="Center" Height="26.7">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/delete.svg" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Button>
+                <Button Name="ResetButton" Click="ResetButton_Click" ToolTip="清空文件列表" Style="{StaticResource MyButton}" HorizontalAlignment="Right" Width="26.7" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Margin="0,0,7.998,0" Height="26.7" VerticalAlignment="Top">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/reset.svg" Stretch="Fill"/>
+                </Button>
+                <Button x:Name="PreviewButton" Click="PreviewButton_Click" ToolTip="预览所选文件" Style="{StaticResource MyButton}" HorizontalAlignment="Left" VerticalAlignment="Center" Width="29.9" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Height="26.7" Margin="0,0,0,2.41">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/preview.svg" Stretch="Fill"/>
+                </Button>
+            </Grid>
+            <Grid Name="DropArea" HorizontalAlignment="Left" Height="115.8" Margin="10,52.6,0,0" VerticalAlignment="Top" Width="487" Drop="DropArea_Drop">
+                <Rectangle ToolTip="将文件拖放到此处" Stroke="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" StrokeDashArray="2,2" RadiusY="5.3" RadiusX="5.3" Height="115.8" VerticalAlignment="Top" Drop="DropArea_Drop" Fill="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}" />
+                <Label Content="拖动文件到此处添加" HorizontalAlignment="Left" Margin="180.8,41.6,0,0" VerticalAlignment="Top" Background="{x:Null}" Foreground="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" Drop="DropArea_Drop"/>
+
+            </Grid>
+            <ListBox Name="FileList" HorizontalAlignment="Left" Height="132.6" Margin="10,173.4,0,0" VerticalAlignment="Top" Width="487" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}"/>
+        </Grid>
+        <Grid x:Name="PluginGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507" Visibility="Collapsed">
+            <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
+            <Label Content="插件安装" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Grid HorizontalAlignment="Left" Height="29.11" Margin="394.888,10,0,0" VerticalAlignment="Top" Width="102.112">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </Grid>
+        <Grid x:Name="ConfigGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507" Visibility="Collapsed">
+            <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
+            <Label Content="配置文件" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Grid HorizontalAlignment="Left" Height="29.11" Margin="467.688,10,0,0" VerticalAlignment="Top" Width="29.312">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Name="SaveButton" Click="SaveButton_Click" ToolTip="保存设置" Style="{StaticResource MyButton}" HorizontalAlignment="Right" Width="23" Height="23" BorderBrush="{x:Null}" Foreground="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Margin="0,0.59,3.398,5.153">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/save.svg" Stretch="Fill"/>
+                </Button>
+            </Grid>
+            <Grid HorizontalAlignment="Left" Height="248.8" Margin="10,49.69,0,0" VerticalAlignment="Top" Width="487">
+                <Grid HorizontalAlignment="Left" Height="50.4" VerticalAlignment="Top" Width="487">
+                    <Label Content="Sven Co-op路径" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Rectangle HorizontalAlignment="Left" Height="29.6" Margin="123.71,10,0,0" RadiusY="5.3" RadiusX="5.3" Stroke="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="353.29"/>
+                    <TextBlock x:Name="SvenDir" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Center" Height="29.6" Margin="123.71,15.4,64.766,5.4" TextWrapping="Wrap" Text="选择svencoop.exe所在目录" Width="298.524" TextAlignment="Center" TextDecorations="Underline" Cursor="IBeam"/>
+                    <Button Name="OpenFileButton" ToolTip="浏览电脑中的文件" Click="OpenFileButton_Click" Content="..." HorizontalAlignment="Left" Height="29.45" Margin="422.234,10.15,0,0" VerticalAlignment="Top" Width="54.766" Background="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}"/>
+                </Grid>
+                <CheckBox x:Name="IsRootDir" Content="安装到svencoop文件夹(不推荐)"  Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Left" Height="20.267" Margin="10,55.4,0,0" VerticalAlignment="Top" Width="467"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" Height="88" Margin="342.2,210.49,0,0" VerticalAlignment="Top" Width="154.8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="26*"/>
+                    <RowDefinition Height="37*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Dr.Abc@cykaskin.com"  MouseDoubleClick="Night_MouseDoubleClick" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,26.443,0,0" Grid.Row="1" RenderTransformOrigin="0.492,0.688" />
+                <Label Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Left" Margin="0,1.203,0,0" VerticalAlignment="Top" Grid.Row="1">
+                    <Hyperlink NavigateUri="https://github.com/DrAbcrealone" Style="{StaticResource hyberlinkEffect}" Click="Hyperlink_Click">
+                        Dr.Abc
+                    </Hyperlink>
+                </Label>
+                <Label Content="Sven Charactor" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,11.077,0,-0.001" MouseDoubleClick="Color_MouseDoubleClick"/>
+
+            </Grid>
+        </Grid>
+        <Grid Name="LeftToolbar" HorizontalAlignment="Left" Height="352.6" VerticalAlignment="Top" Width="73.4" Background="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}">
+            <Button Style="{StaticResource MyButton}" HorizontalAlignment="Left" Margin="10.4,283.8,0,0" VerticalAlignment="Top" Width="53" Height="53" BorderBrush="{x:Null}" Foreground="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Click="ConfigButton_Click">
+                <svgc:SvgViewbox Height="43" Width="43" Source="pack://application:,,,/resource/config.svg" Stretch="Fill"/>
+            </Button>
+            <Button Style="{StaticResource MyButton}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="53" Height="53" BorderBrush="{x:Null}" Foreground="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Click="RunGridButton_Click">
+                <svgc:SvgViewbox Height="33" Width="43" Source="pack://application:,,,/resource/list.svg" Cursor="Hand" Stretch="Fill"/>
+            </Button>
+            <Button Style="{StaticResource MyButton}" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="53.4" Height="53.4" BorderBrush="{x:Null}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Click="PluginGridButton_Click">
+                <svgc:SvgViewbox Source="pack://application:,,,/resource/plugin.svg" Cursor="Hand" Stretch="Fill" Height="40.2" Width="43.4"/>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>
