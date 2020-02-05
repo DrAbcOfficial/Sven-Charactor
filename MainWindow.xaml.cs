@@ -1,7 +1,7 @@
 ﻿using SharpCompress.Archives;
-using SharpCompress.Common;
 using SharpCompress.Readers;
 using System;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,9 +9,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-
+using System.Windows.Threading;
 
 namespace SvenCharactor
 {
@@ -36,11 +35,24 @@ namespace SvenCharactor
         const string NOTIFY_OPEN_DONE = "已设置程序目录";
         const string NOTIFY_INTIAL_DONE = "成功定位到Sven Co-op安装目录";
         const string NOTIFY_INTIAL_FAILED = "无法定位到Sven Co-op安装目录";
+        const string NOTIFY_PLUGIN_DONE = "插件安装完毕";
+        const string NOTIFY_PLUGIN_DEDEP = "插件解压完毕";
+        const string NOTIFY_PLUGIN_RESET = "所有内容已清除";
+        const string NOTIFY_PLUGIN_EMPTY = "必填项为空";
+        const string NOTIFY_SPRAY_DONE = "喷漆制作成功";
+        const string NOTIFY_SPRAY_DENY = "对文件的访问被拒绝，请手动删除";
+        const string NOTIFY_SPRAY_FAIL = "所选文件不为图片";
+        const string NOTIFY_BIND_DONE = "保存设置成功";
         const string NOTIFY_ERROR = "发生错误:{0}, 已保存错误报告";
+
         const uint NOTIFY_LEVEL_MESSAGE = 0;
         const uint NOTIFY_LEVEL_WARN = 1;
         const uint NOTIFY_LEVEL_ERROR = 2;
         const uint NOTIFY_LEVEL_DONE = 3;
+
+        const string WINDOW_REPLACE = "已经存在文件，是否替换";
+
+        const string PLUGIN_MODEL = "\"plugin\"\n{{\n\t\"name\" \"{0}\"\n\t\"script\" \"{1}\"\n{2}}}";
 
         const string ERROR_REPORT_NAME = "SvenCharactor.error.log";
 
@@ -97,6 +109,10 @@ namespace SvenCharactor
                 gGrid = RunGrid;
             else if (PluginGrid.Visibility == Visibility.Visible)
                 gGrid = PluginGrid;
+            else if (PrintGrid.Visibility == Visibility.Visible)
+                gGrid = PrintGrid;
+            else if (BindGrid.Visibility == Visibility.Visible)
+                gGrid = BindGrid;
             else if (ConfigGrid.Visibility == Visibility.Visible)
                 gGrid = ConfigGrid;
 
@@ -106,7 +122,7 @@ namespace SvenCharactor
                 return;
             }
 
-            gGrid.OpacityMask = this.Resources["ClosedBrush"] as LinearGradientBrush;
+            gGrid.OpacityMask = this.Resources["ClosedBrush"] as System.Windows.Media.LinearGradientBrush;
 
             DoubleAnimation pAnima = new DoubleAnimation();
             pAnima.From = 1.0;
@@ -120,7 +136,7 @@ namespace SvenCharactor
             pStory.Completed += delegate { gGrid.Visibility = Visibility.Collapsed; };
             pStory.Completed += delegate
             {
-                gGrid.OpacityMask = this.Resources["OpenBrush"] as LinearGradientBrush;
+                gGrid.OpacityMask = this.Resources["OpenBrush"] as System.Windows.Media.LinearGradientBrush;
 
                 pAnima = new DoubleAnimation();
                 pAnima.From = 0.0;
@@ -162,7 +178,7 @@ namespace SvenCharactor
                 NoticeGrid.Margin = new Thickness(198.4, 311.4, 0, 0);
                 NoticeGrid.Name = "NoticeGrid";
 
-                NoticeAngle.Stroke = (Brush)new BrushConverter().ConvertFromString("Gray");
+                NoticeAngle.Stroke = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("Gray");
                 NoticeAngle.HorizontalAlignment = HorizontalAlignment.Center;
                 NoticeAngle.VerticalAlignment = VerticalAlignment.Center;
                 NoticeAngle.Height = 31.2;
@@ -178,7 +194,7 @@ namespace SvenCharactor
                     case NOTIFY_LEVEL_DONE: color = Properties.Settings.Default.DoneColor; break;
                     default: break;
                 }
-                NoticeAngle.Fill = (Brush)new BrushConverter().ConvertFromString(color);
+                NoticeAngle.Fill = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString(color);
                 NoticeGrid.Children.Add(NoticeAngle);
 
                 NoticeText.Content = _Str;
@@ -186,6 +202,11 @@ namespace SvenCharactor
                 NoticeText.VerticalAlignment = VerticalAlignment.Center;
                 NoticeText.Name = "NoticeText";
                 NoticeGrid.Children.Add(NoticeText);
+
+                if (NoticeText.Width >= NoticeGrid.Width)
+                    NoticeGrid.Width = NoticeAngle.Width = NoticeText.Width + 20;
+                if (NoticeText.Height >= NoticeGrid.Height)
+                    NoticeGrid.Height = NoticeAngle.Height = NoticeText.Height + 20;
 
                 _Mother.Children.Add(NoticeGrid);
             }
@@ -225,18 +246,52 @@ namespace SvenCharactor
         /// <param name="e"></param>
         public void Error(Exception e)
         {
-            Task ts = new Task(delegate
+            try
             {
-                StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), ERROR_REPORT_NAME));
-                sw.WriteLine("----------------------");
-                sw.WriteLine("[Date]" + DateTime.Now);
-                sw.WriteLine("[Message]" + e.Message);
-                sw.WriteLine("[StackTrace]" + e.StackTrace);
-                sw.WriteLine("[Source]" + e.Source);
-                sw.WriteLine("[InnerException]" + e.InnerException);
-            });
-            ts.Wait();
-            new CNotify(ClientPanel, string.Format(NOTIFY_ERROR, e.Message), NOTIFY_LEVEL_ERROR);
+                Task ts = new Task(delegate
+                {
+                    using (StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), ERROR_REPORT_NAME)))
+                    {
+                        sw.WriteLine("----------------------");
+                        sw.WriteLine("[Date]" + DateTime.Now);
+                        sw.WriteLine("[Message]" + e.Message);
+                        sw.WriteLine("[StackTrace]" + e.StackTrace);
+                        sw.WriteLine("[Source]" + e.Source);
+                        sw.WriteLine("[InnerException]" + e.InnerException);
+                    }
+                });
+                ts.Start();
+                Dispatcher.BeginInvoke(
+                    new Action(delegate
+                     {
+                         new CNotify(ClientPanel, string.Format(NOTIFY_ERROR, e.Message), NOTIFY_LEVEL_ERROR);
+                     }));
+            }
+            catch (Exception) { }
+        }
+
+        public void Error(string str)
+        {
+            try
+            {
+                Task ts = new Task(delegate
+                {
+                    using (StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), ERROR_REPORT_NAME)))
+                    {
+                        sw.WriteLine("----------------------");
+                        sw.WriteLine("[Date]" + DateTime.Now);
+                        sw.WriteLine("[Message]" + str);
+                    }
+
+                });
+                ts.Start();
+                Dispatcher.BeginInvoke(
+                    new Action(delegate
+                    {
+                        new CNotify(ClientPanel, string.Format(NOTIFY_ERROR, str), NOTIFY_LEVEL_ERROR);
+                    }));
+            }
+            catch (Exception) { }
         }
 
         /// <summary>
@@ -285,67 +340,107 @@ namespace SvenCharactor
         }
 
         /// <summary>
+        /// 切换到喷漆页面
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PrintGridButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (PrintGrid.Visibility == Visibility.Visible)
+                return;
+            ToggleGrid(PrintGrid);
+        }
+
+        /// <summary>
+        /// 切换到键位页面
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BindGridButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (BindGrid.Visibility == Visibility.Visible)
+                return;
+            ToggleGrid(BindGrid);
+        }
+
+        private void TryDeCommpersion(in string pathStr, in string extenStr, in string dirStr)
+        {
+            try
+            {
+                using (Stream stream = File.OpenRead(pathStr))
+                {
+                    if (Path.GetExtension(pathStr) == ".7z")
+                    {
+                        var archive = ArchiveFactory.Open(stream);
+                        foreach (var entry in archive.Entries)
+                        {
+                            if (!entry.IsDirectory)
+                            {
+                                if (Path.GetExtension(entry.Key) == extenStr)
+                                {
+                                    string exPath = Properties.Settings.Default.SvenDir +
+                                        string.Format("\\svencoop{0}\\{1}\\{2}", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"), dirStr, Path.GetFileNameWithoutExtension(entry.Key)) + "\\" + Path.GetFileName(entry.Key);
+
+                                    if (!Directory.Exists(Path.GetDirectoryName(exPath)))
+                                        Directory.CreateDirectory(Path.GetDirectoryName(exPath));
+
+                                    using (StreamWriter sw = new StreamWriter(exPath))
+                                    {
+                                        entry.WriteTo(sw.BaseStream);
+                                        sw.Write(sw.BaseStream);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var reader = ReaderFactory.Open(stream);
+                        while (reader.MoveToNextEntry())
+                        {
+                            if (!reader.Entry.IsDirectory)
+                            {
+                                string exPath = Properties.Settings.Default.SvenDir +
+                                        string.Format("\\svencoop{0}\\{1}\\{2}", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"), dirStr, Path.GetFileNameWithoutExtension(reader.Entry.Key)) + "\\" + Path.GetFileName(reader.Entry.Key);
+
+                                if (!Directory.Exists(Path.GetDirectoryName(exPath)))
+                                    Directory.CreateDirectory(Path.GetDirectoryName(exPath));
+
+                                using (StreamWriter sw = new StreamWriter(exPath))
+                                {
+                                    reader.WriteEntryTo(sw.BaseStream);
+                                    sw.Write(sw.BaseStream);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+        /// <summary>
         /// 解压按钮
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void RunButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (FileList.Items.IsEmpty)
             {
-                if (FileList.Items.IsEmpty)
-                {
-                    Notify(NOTIFY_RUN_FAIL, NOTIFY_LEVEL_WARN);
-                    return;
-                }
-                Notify(NOTIFY_RUN);
-                uint uiDoneCount = 0;
-                foreach (string s in FileList.Items)
-                {
-                    using (Stream stream = File.OpenRead(s))
-                    {
-                        if (Path.GetExtension(s) == ".7z")
-                        {
-                            var archive = ArchiveFactory.Open(stream);
-                            foreach (var entry in archive.Entries)
-                            {
-                                if (!entry.IsDirectory)
-                                {
-                                    if (Path.GetExtension(entry.Key) == ".mdl")
-                                    {
-                                        entry.WriteToDirectory(Properties.Settings.Default.SvenDir +
-                                            string.Format("\\svencoop{0}\\models\\player\\{1}\\", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"), Path.GetFileNameWithoutExtension(entry.Key)),
-                                            new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
-                                        uiDoneCount++;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var reader = ReaderFactory.Open(stream);
-                            while (reader.MoveToNextEntry())
-                            {
-                                if (!reader.Entry.IsDirectory)
-                                {
-                                    if (Path.GetExtension(reader.Entry.Key) == ".mdl")
-                                    {
-                                        reader.WriteEntryToDirectory(Properties.Settings.Default.SvenDir +
-                                            string.Format("\\svencoop{0}\\models\\player\\{1}\\{1}.mdl", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"), Path.GetFileNameWithoutExtension(reader.Entry.Key)),
-                                            new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
-                                        uiDoneCount++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                Notify(string.Format(NOTIFY_RUN_DONE, uiDoneCount), NOTIFY_LEVEL_DONE);
+                Notify(NOTIFY_RUN_FAIL, NOTIFY_LEVEL_WARN);
+                return;
             }
-            catch (Exception ex)
+            Notify(NOTIFY_RUN);
+            uint uiDoneCount = 0;
+            foreach (string s in FileList.Items)
             {
-                Error(ex);
+                TryDeCommpersion(s, ".mdl", "models\\player\\");
+                uiDoneCount++;
             }
+            Notify(string.Format(NOTIFY_RUN_DONE, uiDoneCount), NOTIFY_LEVEL_DONE);
         }
 
         /// <summary>
@@ -459,6 +554,16 @@ namespace SvenCharactor
 
             IsRootDir.IsChecked = Properties.Settings.Default.IsSvencoop;
             Properties.Settings.Default.LastLaunch = DateTime.Now;
+
+            if (Properties.Settings.Default.BindedKeys == null)
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("Key", typeof(string));
+                dt.Columns.Add("Val", typeof(string));
+
+                Properties.Settings.Default.BindedKeys = dt;
+            }
+            BindDataGrid.ItemsSource = Properties.Settings.Default.BindedKeys.DefaultView;
             Properties.Settings.Default.Save();
         }
         /// <summary>
@@ -534,6 +639,362 @@ namespace SvenCharactor
             else
                 Properties.Settings.Default.NoneColor = "White";
             isNight = !isNight;
+        }
+        /// <summary>
+        /// 清空
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PluginResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            PluginNameText.Text = string.Empty;
+            PluginLocText.Text = string.Empty;
+            PluginComText.Text = string.Empty;
+
+            PluginMetaText.Text = string.Empty;
+
+            Notify(NOTIFY_PLUGIN_RESET);
+        }
+        /// <summary>
+        /// 修改default_plugin.txt
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PluginRunButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(PluginLocText.Text) || string.IsNullOrEmpty(PluginNameText.Text))
+            {
+                Notify(NOTIFY_PLUGIN_EMPTY, NOTIFY_LEVEL_ERROR);
+                return;
+            }
+            string svenDir = Properties.Settings.Default.SvenDir + "/svencoop/default_plugins.txt";
+            string dirStr = "\t" + PluginMetaText.Text.Replace("\n", "\n\t");
+            Task ts = new Task(
+                delegate
+                {
+                    string tempStr;
+                    using (StreamReader sr = new StreamReader(svenDir))
+                    {
+                        tempStr = sr.ReadToEnd();
+                    }
+                    tempStr = tempStr.Substring(0, tempStr.LastIndexOf("}")) + dirStr + "\n}";
+                    using (StreamWriter sw = new StreamWriter(svenDir))
+                    {
+                        sw.Write(tempStr);
+                    }
+                });
+            ts.Start();
+            ts.Wait();
+            Notify(svenDir, NOTIFY_LEVEL_DONE);
+            Notify(NOTIFY_PLUGIN_DONE, NOTIFY_LEVEL_DONE);
+        }
+
+        /// <summary>
+        /// 修改Meta窗口
+        /// </summary>
+        private void getPluginMeta()
+        {
+            PluginMetaText.Text = string.Format(PLUGIN_MODEL, PluginNameText.Text, PluginLocText.Text,
+                string.IsNullOrEmpty(PluginComText.Text) ? string.Empty : string.Format("\t\"concommandns\" \"{0}\"\n", PluginComText.Text));
+        }
+
+        /// <summary>
+        /// 一堆文本框更改
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PluginNameText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            getPluginMeta();
+        }
+
+        private void PluginLocText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            getPluginMeta();
+        }
+
+        private void PluginComText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            getPluginMeta();
+        }
+
+        private void PluginMetaText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string[] tempStr = PluginMetaText.Text.Replace("{", string.Empty).Replace("}", string.Empty).Replace("\"", string.Empty).Replace("\t", string.Empty).Replace("plugin", string.Empty).Split('\n');
+            foreach (string s in tempStr)
+            {
+                if (s.StartsWith("name"))
+                    PluginNameText.Text = s.Replace("name ", string.Empty);
+                else if (s.StartsWith("script"))
+                    PluginLocText.Text = s.Replace("script ", string.Empty);
+                else if (s.StartsWith("concommandns"))
+                    PluginComText.Text = s.Replace("concommandns ", string.Empty);
+            }
+        }
+
+        private string[] getPluginLoc()
+        {
+            string[] tempStr = PluginLocText.Text.Split(PluginLocText.Text.Contains("\\") ? '\\' : '/');
+            return tempStr;
+        }
+        /// <summary>
+        /// 替换第一个字符
+        /// </summary>
+        /// <param name="strTemp">远字符串</param>
+        /// <param name="beReplace">被替换字符串</param>
+        /// <param name="doReplace">替换字符串</param>
+        /// <returns></returns>
+        private string Replace(in string strTemp, in string beReplace, in string doReplace)
+        {
+            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex(beReplace);
+            if (reg.IsMatch(strTemp))
+                return reg.Replace(strTemp, doReplace, 1);
+            return strTemp;
+        }
+        /// <summary>
+        /// 插件文件拖拽操作
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PluginArea_Drop(object sender, DragEventArgs e)
+        {
+            if (string.IsNullOrEmpty(PluginLocText.Text) || string.IsNullOrEmpty(PluginNameText.Text))
+            {
+                Notify(NOTIFY_PLUGIN_EMPTY, NOTIFY_LEVEL_ERROR);
+                return;
+            }
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string str = ((string[])e.Data.GetData(DataFormats.FileDrop))[0];
+                if (!IsCompressed(str))
+                    return;
+
+                string tempDir = string.Empty;
+                string[] tempAry = getPluginLoc();
+                string realDir = string.Empty;
+
+                for (uint i = 0; i < tempAry.Length - 1; i++)
+                {
+                    realDir += tempAry[i];
+                }
+
+                //寻找文件目录
+                try
+                {
+                    Task ts = new Task(
+                        delegate
+                        {
+                            using (Stream stream = File.OpenRead(str))
+                            {
+                                if (Path.GetExtension(str) == ".7z")
+                                {
+                                    var archive = ArchiveFactory.Open(stream);
+                                    foreach (var entry in archive.Entries)
+                                    {
+                                        if (!entry.IsDirectory)
+                                        {
+                                            if (Path.GetExtension(entry.Key) == ".as")
+                                            {
+                                                if (Path.GetFileNameWithoutExtension(entry.Key) == tempAry[tempAry.Length - 1])
+                                                {
+                                                    tempDir = Path.GetDirectoryName(entry.Key);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    var reader = ReaderFactory.Open(stream);
+                                    while (reader.MoveToNextEntry())
+                                    {
+                                        if (!reader.Entry.IsDirectory)
+                                        {
+                                            if (Path.GetExtension(reader.Entry.Key) == ".as")
+                                            {
+                                                if (Path.GetFileNameWithoutExtension(reader.Entry.Key) == tempAry[tempAry.Length - 1])
+                                                {
+                                                    tempDir = Path.GetDirectoryName(reader.Entry.Key);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        );
+                    ts.Start();
+                    ts.Wait();
+
+                    ts = new Task(
+                        delegate
+                        {
+                            using (Stream stream = File.OpenRead(str))
+                            {
+                                if (Path.GetExtension(str) == ".7z")
+                                {
+                                    var archive = ArchiveFactory.Open(stream);
+                                    foreach (var entry in archive.Entries)
+                                    {
+                                        if (!entry.IsDirectory)
+                                        {
+                                            if (Path.GetDirectoryName(entry.Key).Contains(tempDir))
+                                            {
+                                                string exPath = Properties.Settings.Default.SvenDir + string.Format("\\svencoop{0}\\{1}\\{2}",
+                                                    (Properties.Settings.Default.IsSvencoop ? "" : "_addon"),
+                                                    "scripts\\plugins\\" + realDir, Replace(entry.Key, tempDir, string.Empty));
+                                                if (!Directory.Exists(Path.GetDirectoryName(exPath)))
+                                                    Directory.CreateDirectory(Path.GetDirectoryName(exPath));
+
+                                                using (StreamWriter sw = new StreamWriter(exPath))
+                                                {
+                                                    entry.WriteTo(sw.BaseStream);
+                                                    sw.Write(sw.BaseStream);
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+                                else
+                                {
+                                    var reader = ReaderFactory.Open(stream);
+                                    while (reader.MoveToNextEntry())
+                                    {
+                                        if (!reader.Entry.IsDirectory)
+                                        {
+                                            if (Path.GetDirectoryName(reader.Entry.Key).Contains(tempDir))
+                                            {
+                                                string exPath = Properties.Settings.Default.SvenDir + string.Format("\\svencoop{0}\\{1}\\{2}",
+                                                    (Properties.Settings.Default.IsSvencoop ? "" : "_addon"),
+                                                    "scripts\\plugins\\" + realDir, Replace(reader.Entry.Key, tempDir, string.Empty));
+                                                if (!Directory.Exists(Path.GetDirectoryName(exPath)))
+                                                    Directory.CreateDirectory(Path.GetDirectoryName(exPath));
+
+                                                using (StreamWriter sw = new StreamWriter(exPath))
+                                                {
+                                                    reader.WriteEntryTo(sw.BaseStream);
+                                                    sw.Write(sw.BaseStream);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        );
+                    ts.Start();
+                    ts.Wait();
+                    Process.Start(Properties.Settings.Default.SvenDir + string.Format("\\svencoop{0}\\{1}\\",
+                                                    (Properties.Settings.Default.IsSvencoop ? "" : "_addon"),
+                                                    "scripts\\plugins\\" + realDir));
+                    Notify(NOTIFY_PLUGIN_DEDEP, NOTIFY_LEVEL_DONE);
+
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
+                }
+            }
+        }
+        bool IsImage(in string sz)
+        {
+            return Path.GetExtension(sz) == ".jpg" || Path.GetExtension(sz) == ".bmp" || Path.GetExtension(sz) == ".png" || Path.GetExtension(sz) == ".tiff";
+        }
+        /// <summary>
+        /// 图片处理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImageArea_Drop(object sender, DragEventArgs e)
+        {
+            try
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    string str = ((string[])e.Data.GetData(DataFormats.FileDrop))[0];
+                    if (!IsImage(str))
+                    {
+                        Notify(NOTIFY_SPRAY_FAIL, NOTIFY_LEVEL_ERROR);
+                        return;
+                    }
+                    string outputPath = Properties.Settings.Default.SvenDir + string.Format("\\svencoop{0}\\", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"));
+                    outputPath = Path.Combine(outputPath, "tempdecal.wad");
+                    if (File.Exists(outputPath))
+                    {
+                        if (CheckWindow.Show(WINDOW_REPLACE) != CheckWindowReturn.RETURN_OK)
+                            return;
+
+                        if (File.GetAttributes(outputPath).ToString().IndexOf("ReadOnly") != -1)
+                        {
+                            Notify(NOTIFY_SPRAY_DENY, NOTIFY_LEVEL_ERROR);
+                            return;
+                        }
+                    }
+
+                    Task ts = new Task(delegate { HLTools.WAD3Loader.CreateWad(outputPath, new string[] { str }, new string[] { "{logo" }); });
+                    ts.Start();
+                    ts.Wait();
+
+                    if (IsPrintReadOnly.IsChecked == true)
+                        File.SetAttributes(outputPath, FileAttributes.ReadOnly);
+                    Notify(NOTIFY_SPRAY_DONE, NOTIFY_LEVEL_DONE);
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        private void SaveBindButton_Click(object sender, RoutedEventArgs e)
+        {
+            string outputPath = Properties.Settings.Default.SvenDir + string.Format("\\svencoop{0}\\", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"));
+            outputPath = Path.Combine(outputPath, "bindedkey.cfg");
+            if(!File.Exists(outputPath))
+            {
+                string autoExec = Properties.Settings.Default.SvenDir + string.Format("\\svencoop{0}\\", (Properties.Settings.Default.IsSvencoop ? "" : "_addon"));
+                autoExec = Path.Combine(autoExec, "autoexec.cfg");
+                using (StreamWriter sw = new StreamWriter(autoExec, true))
+                {
+                    sw.WriteLine("exec bindedkey.cfg");
+                }
+            }
+            string tempStr = string.Empty;
+            foreach (DataRow row in Properties.Settings.Default.BindedKeys.Rows)
+            {
+                if(!string.IsNullOrEmpty(row["Key"].ToString()) && !string.IsNullOrEmpty(row["Val"].ToString()))
+                    tempStr += string.Format("bind {0} {1}\n", row["Key"], row["Val"]);
+            }
+            using (StreamWriter sw = new StreamWriter(outputPath))
+            {
+                sw.Write(tempStr);
+            }
+            Properties.Settings.Default.Save();
+            Notify(NOTIFY_BIND_DONE,NOTIFY_LEVEL_DONE);
+        }
+
+        private void BindAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(string.IsNullOrEmpty(BindKey.Text) || string.IsNullOrEmpty(BindVal.Text))
+            {
+                Notify(NOTIFY_PLUGIN_EMPTY, NOTIFY_LEVEL_ERROR);
+                return;
+            }
+            DataRow row = Properties.Settings.Default.BindedKeys.NewRow();
+            row["Key"] = BindKey.Text;
+            string Val = string.Empty;
+            switch(BindKind.SelectedIndex)
+            {
+                case 0: Val += "\"say " + BindVal.Text + "\"";break;
+                case 1:Val = BindVal.Text;break;
+                default: Val = BindVal.Text; break;
+            }
+            row["Val"] = Val;
+            Properties.Settings.Default.BindedKeys.Rows.Add(row);
         }
     }
 }

@@ -18,7 +18,7 @@
                 <svgc:SvgViewbox Height="18.467" Width="18.201" Source="pack://application:,,,/resource/close.svg" Stretch="Fill"/>
             </Button>
         </Grid>
-        <Grid Name="RunGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507">
+        <Grid Name="RunGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507" Visibility="Visible">
             <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
             <Label Content="人物模型安装" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
             <Grid HorizontalAlignment="Left" Height="29.11" Margin="355.288,10,0,0" VerticalAlignment="Top" Width="141.712">
@@ -39,9 +39,9 @@
                     <svgc:SvgViewbox Source="pack://application:,,,/resource/preview.svg" Stretch="Fill"/>
                 </Button>
             </Grid>
-            <Grid Name="DropArea" HorizontalAlignment="Left" Height="115.8" Margin="10,52.6,0,0" VerticalAlignment="Top" Width="487" Drop="DropArea_Drop">
-                <Rectangle ToolTip="将文件拖放到此处" Stroke="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" StrokeDashArray="2,2" RadiusY="5.3" RadiusX="5.3" Height="115.8" VerticalAlignment="Top" Drop="DropArea_Drop" Fill="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}" />
-                <Label Content="拖动文件到此处添加" HorizontalAlignment="Left" Margin="180.8,41.6,0,0" VerticalAlignment="Top" Background="{x:Null}" Foreground="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" Drop="DropArea_Drop"/>
+            <Grid Name="DropArea" HorizontalAlignment="Left" Height="115.8" Margin="10,52.6,0,0" VerticalAlignment="Top" Width="487">
+                <Rectangle ToolTip="将压缩包拖放到此处" Stroke="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" StrokeDashArray="2,2" RadiusY="5.3" RadiusX="5.3" Height="115.8" VerticalAlignment="Top" Drop="DropArea_Drop" Fill="{Binding Path=NoneColor,Source={x:Static Properties:Settings.Default}}" />
+                <Label Content="拖动压缩包到此处添加" HorizontalAlignment="Left" Margin="180.8,41.6,0,0" VerticalAlignment="Top" Background="{x:Null}" Foreground="{Binding Path=LightColor,Source={x:Static Properties:Settings.Default}}" />
 
             </Grid>
             <ListBox Name="FileList" HorizontalAlignment="Left" Height="132.6" Margin="10,173.4,0,0" VerticalAlignment="Top" Width="487" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}"/>
@@ -54,7 +54,104 @@
                     <ColumnDefinition Width="50*"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
+                <Button x:Name="PluginResetButton"  Click="PluginResetButton_Click" ToolTip="清空列表" Style="{StaticResource MyButton}" HorizontalAlignment="Right" Width="26.7" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Margin="0,0,7.998,0" Height="26.7" VerticalAlignment="Top">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/reset.svg" Stretch="Fill"/>
+                </Button>
+                <Button x:Name="PluginRunButton" Click="PluginRunButton_Click" ToolTip="添加插件" Style="{StaticResource MyButton}" HorizontalAlignment="Left" VerticalAlignment="Center" Width="26.7" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Height="26.7" Margin="10,0,0,2.41">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/start.svg" Stretch="Fill"/>
+                </Button>
             </Grid>
+            <Grid HorizontalAlignment="Left" Height="250.8" Margin="10,47.69,0,0" VerticalAlignment="Top" Width="487">
+                <Grid HorizontalAlignment="Left" Height="230.8" Margin="294.6,10,0,0" VerticalAlignment="Top" Width="182.4">
+                    <TextBox TextChanged="PluginMetaText_TextChanged" AcceptsReturn="True" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" Name="PluginMetaText" HorizontalAlignment="Left" Height="205.56" TextWrapping="Wrap" VerticalAlignment="Top" Width="182.4" Margin="0,25.24,0,0" Cursor="IBeam"/>
+                    <Label Content="原始数据" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                    <Rectangle HorizontalAlignment="Left" Height="205.56" Margin="0,25.24,0,0" RadiusY="1.5" RadiusX="1.5" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="182.4"/>
+                </Grid>
+                <Grid HorizontalAlignment="Left" Height="57.2" Margin="10,10,0,0" VerticalAlignment="Top" Width="279.6">
+                    <TextBox TextChanged="PluginNameText_TextChanged" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" Name="PluginNameText" HorizontalAlignment="Left" Height="21.96" TextWrapping="Wrap" VerticalAlignment="Top" Width="269.6" Margin="0,25.24,0,0" Cursor="IBeam"/>
+                    <Label Content="插件名称" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                    <Rectangle HorizontalAlignment="Left" Height="21.96" Margin="0,25.24,0,0" RadiusY="1.5" RadiusX="1.5" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="269.6"/>
+                </Grid>
+                <Grid HorizontalAlignment="Left" Height="57.2" Margin="10,72.2,0,0" VerticalAlignment="Top" Width="279.6">
+                    <TextBox TextChanged="PluginLocText_TextChanged" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" Name="PluginLocText" HorizontalAlignment="Left" Height="21.96" TextWrapping="Wrap" VerticalAlignment="Top" Width="269.6" Margin="0,25.24,0,0" Cursor="IBeam"/>
+                    <Label Content="插件安装位置" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                    <Rectangle HorizontalAlignment="Left" Height="21.96" Margin="0,25.24,0,0" RadiusY="1.5" RadiusX="1.5" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="269.6"/>
+                </Grid>
+                <Grid HorizontalAlignment="Left" Height="57.2" Margin="10,134.4,0,0" VerticalAlignment="Top" Width="279.6">
+                    <TextBox TextChanged="PluginComText_TextChanged" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"  Name="PluginComText" HorizontalAlignment="Left" Height="21.96" TextWrapping="Wrap" VerticalAlignment="Top" Width="269.6" Margin="0,25.24,0,0" Cursor="IBeam"/>
+                    <Label  Content="插件附加参数(选填)" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                    <Rectangle HorizontalAlignment="Left" Height="21.96" Margin="0,25.24,0,0" RadiusY="1.5" RadiusX="1.5" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="269.6"/>
+                </Grid>
+                <Grid x:Name="PluginArea"  HorizontalAlignment="Left" Height="49.2" Margin="10,191.6,0,0" VerticalAlignment="Top" Width="279.6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="67*"/>
+                        <ColumnDefinition Width="73*"/>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Drop="PluginArea_Drop" ToolTip="将压缩包拖放到此处" Stroke="{Binding LightColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" StrokeDashArray="2,2" RadiusY="5.3" RadiusX="5.3" Height="49.2" VerticalAlignment="Top" Fill="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Grid.ColumnSpan="2" Margin="0,0,10,0" />
+                    <Label Content="拖动压缩包到此处" HorizontalAlignment="Center" Margin="75,10,86.6,13.96" VerticalAlignment="Center" Background="{x:Null}" Foreground="{Binding LightColor, Source={x:Static Properties:Settings.Default}}" Grid.ColumnSpan="2" Height="25.24" Width="118"/>
+
+                </Grid>
+            </Grid>
+        </Grid>
+        <Grid x:Name="PrintGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507" Visibility="Collapsed">
+            <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
+            <Label Content="喷漆制作" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Grid HorizontalAlignment="Left" Height="29.11" Margin="394.888,10,0,0" VerticalAlignment="Top" Width="102.112">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+            </Grid>
+            <Grid x:Name="ImageArea"  HorizontalAlignment="Left" Height="226.69" Margin="10,52.6,0,0" VerticalAlignment="Top" Width="487">
+                <Rectangle Drop="ImageArea_Drop" ToolTip="将图片拖放到此处" Stroke="{Binding LightColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" StrokeDashArray="2,2" RadiusY="5.3" RadiusX="5.3" Height="222.29" VerticalAlignment="Top" Fill="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" />
+                <Label  Content="拖动图片到此处添加" HorizontalAlignment="Left" Margin="181.7,83.525,0,0" VerticalAlignment="Top" Background="{x:Null}" Foreground="{Binding LightColor, Source={x:Static Properties:Settings.Default}}"/>
+
+            </Grid>
+            <Grid HorizontalAlignment="Left" Height="29.2" Margin="10,279.29,0,0" VerticalAlignment="Top" Width="487">
+                <CheckBox Name="IsPrintReadOnly" Content="将喷漆设为只读属性(后续更改需手动删除)" Foreground="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,4.101,0,10"/>
+            </Grid>
+        </Grid>
+        <Grid x:Name="BindGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507" Visibility="Collapsed">
+            <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
+            <Label Content="键位绑定" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"  FontSize="13" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Grid  HorizontalAlignment="Left" Height="29.11" Margin="394.888,10,0,0" VerticalAlignment="Top" Width="102.112">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="7*"/>
+                    <RowDefinition Height="23*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="SaveBindButton" Click="SaveBindButton_Click" ToolTip="保存设置" Style="{StaticResource MyButton}" HorizontalAlignment="Right" Width="23" Height="23" BorderBrush="{x:Null}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Margin="0,0,0,6.11" Grid.RowSpan="2">
+                    <svgc:SvgViewbox Source="pack://application:,,,/resource/save.svg" Stretch="Fill"/>
+                </Button>
+            </Grid>
+            <DataGrid HorizontalAlignment="Left" Height="188.8" Margin="13.8,55.69,0,0" VerticalAlignment="Top" Width="483.2" Name="BindDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="键位" Binding="{Binding Key}" ClipboardContentBinding="{x:Null}" Width="120" />
+                    <DataGridTextColumn Header="命令" Binding="{Binding Val}" ClipboardContentBinding="{x:Null}" Width="250"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Grid HorizontalAlignment="Left" Height="54" Margin="13.8,244.49,0,0" VerticalAlignment="Top" Width="159.2">
+                <TextBox AcceptsReturn="True" MaxLength="1" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" x:Name="BindKey" HorizontalAlignment="Center" Height="28.76" TextWrapping="NoWrap" VerticalAlignment="Center" Width="159.2" Margin="0,25.24,0,0" Cursor="IBeam"/>
+                <Label Content="键位" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                <Rectangle HorizontalAlignment="Left" Height="28.76" Margin="0,25.24,0,0" RadiusY="1.5" RadiusX="1.5" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="159.2"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" Height="54" Margin="178,244.49,0,0" VerticalAlignment="Top" Width="85.2">
+                <Label Content="类型" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                <ComboBox Name="BindKind" HorizontalAlignment="Left" SelectedItem="Command" Height="28.76" Margin="0,25.24,0,0" VerticalAlignment="Top" Width="85.2" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" Background="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}">
+                    <ComboBoxItem Name="Say" Content="发言" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" Background="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}"/>
+                    <ComboBoxItem Name="Command" Content="命令" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" Background="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}"/>
+                </ComboBox>
+
+            </Grid>
+            <Grid HorizontalAlignment="Left" Height="54" Margin="268.2,244.49,0,0" VerticalAlignment="Top" Width="159.2">
+                <TextBox AcceptsReturn="True" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" x:Name="BindVal" HorizontalAlignment="Left" Height="28.76" TextWrapping="Wrap" VerticalAlignment="Center" Width="159.2" Margin="0,25.24,0,0" Cursor="IBeam"/>
+                <Label Content="值" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+                <Rectangle HorizontalAlignment="Left" Height="28.76" Margin="0,25.24,0,0" RadiusY="1.5" RadiusX="1.5" Stroke="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" StrokeThickness="1" VerticalAlignment="Top" Width="159.2"/>
+            </Grid>
+            <Button Name="BindAddButton" Content="添加" Click="BindAddButton_Click" HorizontalAlignment="Left" Height="30.067" Margin="432.4,268.423,0,0" VerticalAlignment="Top" Width="64.6"/>
         </Grid>
         <Grid x:Name="ConfigGrid" HorizontalAlignment="Left" Height="308.49" Margin="78.4,34.11,0,0" VerticalAlignment="Top" Width="507" Visibility="Collapsed">
             <Line X1="10" Y1="20" X2="500" Y2="20" Stroke="{Binding Path=DeepColor,Source={x:Static Properties:Settings.Default}}" StrokeThickness="5" Margin="0,21.8,0,-21.8"/>
@@ -101,6 +198,12 @@
             </Button>
             <Button Style="{StaticResource MyButton}" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="53.4" Height="53.4" BorderBrush="{x:Null}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Click="PluginGridButton_Click">
                 <svgc:SvgViewbox Source="pack://application:,,,/resource/plugin.svg" Cursor="Hand" Stretch="Fill" Height="40.2" Width="43.4"/>
+            </Button>
+            <Button Style="{StaticResource MyButton}" HorizontalAlignment="Left" Margin="10.4,137.334,0,0" VerticalAlignment="Top" Width="53.4" Height="53.4" BorderBrush="{x:Null}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Click="PrintGridButton_Click">
+                <svgc:SvgViewbox Source="pack://application:,,,/resource/print.svg" Cursor="Hand" Stretch="Fill" Width="39.667" Height="50.467"/>
+            </Button>
+            <Button Style="{StaticResource MyButton}" HorizontalAlignment="Left" Margin="10.4,210.534,0,0" VerticalAlignment="Top" Width="53.4" Height="53.4" BorderBrush="{x:Null}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Background="{x:Null}" Click="BindGridButton_Click">
+                <svgc:SvgViewbox Source="pack://application:,,,/resource/keyboard.svg" Cursor="Hand" Stretch="Fill" Width="47.134" Height="36.667"/>
             </Button>
         </Grid>
     </Grid>

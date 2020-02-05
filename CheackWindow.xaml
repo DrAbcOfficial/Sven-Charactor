@@ -1,0 +1,24 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Properties="clr-namespace:SvenCharactor.Properties"
+        xmlns:local="clr-namespace:SvenCharactor"
+        xmlns:svgc="http://sharpvectors.codeplex.com/svgc/" x:Class="SvenCharactor.CheckWindow"
+        mc:Ignorable="d"
+        Title="Window1" Height="209.2" Width="364" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" AllowDrop="True" Background="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}">
+    <Grid>
+
+        <WrapPanel HorizontalAlignment="Left" Height="34.11" VerticalAlignment="Top" Width="364" MouseMove="Title_MouseMove" Background="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}"/>
+        <Grid x:Name="TopToolbar" HorizontalAlignment="Right" Height="34.11" VerticalAlignment="Center" Width="85.066" Margin="0,0,10,175.09">
+            <Button Style="{StaticResource CloseButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="30.801" BorderBrush="{x:Null}" Foreground="White" Background="{x:Null}" Height="29.11" Click="CloseWindow_Click">
+                <svgc:SvgViewbox Height="18.467" Width="18.201" Source="pack://application:,,,/resource/close.svg" Stretch="Fill"/>
+            </Button>
+        </Grid>
+        <Label Name="Text" Content="有一说一，你不应该看见这句话" Foreground="{Binding DeepColor, Source={x:Static Properties:Settings.Default}}" HorizontalAlignment="Center" Margin="49.1,80.77,52.9,95.57" VerticalAlignment="Center" FontSize="18"/>
+        <Button Name="NoButton" Click="NoButton_Click" Content="取消"  Background="{Binding LightColor, Source={x:Static Properties:Settings.Default}}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Style="{StaticResource MyButton}"  HorizontalAlignment="Left" Height="70.4" Margin="177.8,138.8,0,0" VerticalAlignment="Top" Width="186.2" FontSize="15"/>
+        <Button Name="OkButton" Click="OkButton_Click" Content="确认"  Background="{Binding LightColor, Source={x:Static Properties:Settings.Default}}" Foreground="{Binding NoneColor, Source={x:Static Properties:Settings.Default}}" Style="{StaticResource MyButton}"  HorizontalAlignment="Left" Height="70.4" Margin="0,138.8,0,0" VerticalAlignment="Top" Width="177.8" FontSize="15"/>
+
+    </Grid>
+</Window>

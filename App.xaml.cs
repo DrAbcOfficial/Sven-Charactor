@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 
 namespace SvenCharactor
@@ -13,5 +11,6 @@ namespace SvenCharactor
     /// </summary>
     public partial class App : Application
     {
+        
     }
 }
